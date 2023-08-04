@@ -11,5 +11,6 @@ type CustomerModel struct {
 	Phone     string
 	Address   string
 	Birthdate time.Time
+	Balance   int
 	Status    string
 }

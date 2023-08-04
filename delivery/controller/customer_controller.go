@@ -61,6 +61,32 @@ func (cstmrCntrl *CustomerController) GetCustomerById(ctx *gin.Context) {
 	})
 }
 
+func (cstmrCntrl *CustomerController) GetBalanceById(ctx *gin.Context) {
+	idStr := ctx.Param("id")
+	id, _ := strconv.Atoi(idStr)
+	if idStr == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"success":      false,
+			"errorMessage": "Id tidak boleh kosong",
+		})
+		return
+	}
+
+	Cstmr, err := cstmrCntrl.cstmrUsecase.GetBalanceById(id)
+	if err != nil {
+		fmt.Printf("CustomerHandler.GetCustomerByName() : %v ", err.Error())
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"success":      false,
+			"errorMessage": "Terjadi kesalahan ketika mengambil data Customer",
+		})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    Cstmr,
+	})
+}
+
 func (cstmrCntrl *UserController) GetCustomerByName(ctx *gin.Context) {
 	name := ctx.Param("name")
 	if name == "" {

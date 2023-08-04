@@ -2,7 +2,7 @@ package model
 
 import "time"
 
-type Payment struct {
+type PaymentModel struct {
 	Id            int
 	CustomerId    int
 	Paid          int64

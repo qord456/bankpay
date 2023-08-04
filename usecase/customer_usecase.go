@@ -15,6 +15,7 @@ type CustomerUsecase interface {
 	DeleteCustomer(id int) error
 	UpdateCustomer(cstmrArr *model.CustomerModel) error
 	UpdateCustomerStatus(cstmrArr *model.CustomerModel) error
+	GetBalanceById(id int) (*model.CustomerModel, error)
 }
 
 type customerUsecaseImpl struct {
@@ -48,6 +49,21 @@ func (cstmrUsecase *customerUsecaseImpl) GetCustomerById(id int) (*model.Custome
 	cstmr, err := cstmrUsecase.cstmrRepo.GetCustomerById(id)
 	if err != nil {
 		return nil, fmt.Errorf("cstmrUsecase.cstmrRepo.GetCustomerByName() : %w", err)
+	}
+	if cstmr == nil {
+		return nil, apperror.AppError{
+			ErrorCode:    400,
+			ErrorMessage: fmt.Sprintf("data customer dengan id : %d tidak ada", id),
+		}
+	}
+
+	return cstmr, nil
+}
+
+func (cstmrUsecase *customerUsecaseImpl) GetBalanceById(id int) (*model.CustomerModel, error) {
+	cstmr, err := cstmrUsecase.cstmrRepo.GetBlanceById(id)
+	if err != nil {
+		return nil, fmt.Errorf("cstmrUsecase.cstmrRepo.GetBalanceById() : %w", err)
 	}
 	if cstmr == nil {
 		return nil, apperror.AppError{
