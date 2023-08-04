@@ -33,7 +33,10 @@ func GenerateToken(userName string) (string, error) {
 	return token, nil
 }
 
+var invalidatedTokens = make(map[string]bool)
+
 func VerifyAccessToken(tokenString string) (string, error) {
+
 	claim := &JwtClaims{}
 	t, err := jwt.ParseWithClaims(tokenString, claim, func(t *jwt.Token) (interface{}, error) {
 		return []byte(KEY), nil
@@ -44,6 +47,13 @@ func VerifyAccessToken(tokenString string) (string, error) {
 	if !t.Valid {
 		return "", fmt.Errorf("VerifyAccessToken : Invalid token")
 	}
-	return claim.Username, nil
+	if _, invalidated := invalidatedTokens[tokenString]; invalidated {
+		return "", fmt.Errorf("VerifyAccessToken : Token has been invalidated")
+	}
 
+	return claim.Username, nil
+}
+
+func InvalidateToken(tokenString string) {
+	invalidatedTokens[tokenString] = true
 }

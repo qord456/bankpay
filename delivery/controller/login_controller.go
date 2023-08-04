@@ -52,8 +52,18 @@ func (lgnController LoginController) Login(ctx *gin.Context) {
 	if err != nil {
 		log.Println("Token Invalid")
 	}
+	ctx.Header("Authorization", "Bearer "+temp)
 	ctx.JSON(http.StatusOK, gin.H{
 		"token": temp,
+	})
+}
+
+func (lgnController LoginController) Logout(ctx *gin.Context) {
+	token := ctx.GetHeader("Authorization")
+	authutil.InvalidateToken(token)
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"message": "Logged out successfully",
 	})
 }
 
@@ -62,4 +72,5 @@ func NewLoginController(srv *gin.Engine, lgnUsecase usecase.LoginUsecase) {
 		lgnUsecase: lgnUsecase,
 	}
 	srv.POST("/login", lgnHandler.Login)
+	srv.POST("/logout", lgnHandler.Logout)
 }
