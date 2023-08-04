@@ -13,7 +13,8 @@ import (
 )
 
 type UserController struct {
-	userUsecase usecase.UserUsecase
+	userUsecase  usecase.UserUsecase
+	cstmrUsecase usecase.CustomerUsecase
 }
 
 func (usrCntrl *UserController) GetAllUser(ctx *gin.Context) {
@@ -139,15 +140,16 @@ func (usrCntrl *UserController) DeleteUser(ctx *gin.Context) {
 		})
 		return
 	}
-	// err = usrHandler.ctmUsecase.DeleteCustomer(id)
-	// if err != nil {
-	// 	fmt.Printf("usrHandler.usrUsecase.DeleteUser(id) : %v", err.Error())
-	// 	ctx.JSON(http.StatusInternalServerError, gin.H{
-	// 		"success":      false,
-	// 		"errorMessage": "Terjadi kesalahan dalam menghapus data Customer",
-	// 	})
-	// 	return
-	// }
+
+	err = usrCntrl.cstmrUsecase.DeleteCustomer(id)
+	if err != nil {
+		fmt.Printf("usrHandler.usrUsecase.DeleteUser(id) : %v", err.Error())
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"success":      false,
+			"errorMessage": "Terjadi kesalahan dalam menghapus data Customer",
+		})
+		return
+	}
 }
 
 func (usrCntrl *UserController) UpdateUser(ctx *gin.Context) {
@@ -174,13 +176,13 @@ func (usrCntrl *UserController) UpdateUser(ctx *gin.Context) {
 	if err != nil {
 		appError := apperror.AppError{}
 		if errors.As(err, &appError) {
-			fmt.Printf("UserHandler.InsertUser() 1 : %v ", err.Error())
+			fmt.Printf("UserHandler.UpdateUser() 1 : %v ", err.Error())
 			ctx.JSON(http.StatusInternalServerError, gin.H{
 				"success":      false,
 				"errorMessage": appError.Error(),
 			})
 		} else {
-			fmt.Printf("UserHandler.InsertUser() 2 : %v ", err.Error())
+			fmt.Printf("UserHandler.UpdateUser() 2 : %v ", err.Error())
 			ctx.JSON(http.StatusInternalServerError, gin.H{
 				"success":      false,
 				"errorMessage": "Terjadi kesalahan ketika menyimpan data User",
@@ -197,12 +199,17 @@ func NewUserController(srv *gin.Engine, userUsecase usecase.UserUsecase) *UserCo
 	usrCntrl := &UserController{
 		userUsecase: userUsecase,
 	}
+	//FOR ADMIN
 	srv.GET("/admin/user", usrCntrl.GetAllUser)
+	srv.GET("/admin/user/:id", usrCntrl.GetUserById)
+	srv.GET("/admin/user/:username", usrCntrl.GetUserByUsername)
+	srv.POST("/admin/user", usrCntrl.RegisterUser)
+	srv.DELETE("/admin/:id", usrCntrl.DeleteUser)
+	srv.PUT("/admin/user/:id", usrCntrl.UpdateUser)
+	//FOR USER
 	srv.GET("/user/:id", usrCntrl.GetUserById)
 	srv.POST("/user", usrCntrl.RegisterUser)
-	srv.GET("/user/:name", usrCntrl.GetUserByUsername)
-	srv.DELETE("/admin/:id", usrCntrl.DeleteUser)
-	srv.PUT("user/:id", usrCntrl.UpdateUser)
+	srv.PUT("/user/:id", usrCntrl.UpdateUser)
 
 	return usrCntrl
 }

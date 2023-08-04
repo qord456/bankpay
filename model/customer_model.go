@@ -4,7 +4,7 @@ import "time"
 
 type CustomerModel struct {
 	Id        int
-	User_id   int
+	UserId    int
 	Nik       string
 	Name      string
 	Email     string
